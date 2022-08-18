@@ -1,7 +1,4 @@
-
-
-	
-
+--Created by SAVELDEVV#2697
 	
   
   local players = game:GetService("Players")
