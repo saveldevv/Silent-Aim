@@ -102,4 +102,3 @@ local function TKJCW_fake_script() -- toggle.LocalScript
 	
 	
 end
-coroutine.wrap(TKJCW_fake_script)()
