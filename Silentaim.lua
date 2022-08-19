@@ -1,248 +1,109 @@
--- press v to use aimbot and press q to disable aimbot
-loadstring(game:HttpGet("https://pastebin.com/raw/uw2P2fbY", true))()
+-- Gui to Lua
+-- Version: 3.2
 
-PLAYER  = game.Players.LocalPlayer
-MOUSE   = PLAYER:GetMouse()
-CC      = game.Workspace.CurrentCamera
+-- Instances:
 
-ENABLED      = false
-ESP_ENABLED  = false
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local toggle = Instance.new("TextButton")
+local TextLabel = Instance.new("TextLabel")
 
-_G.FREE_FOR_ALL = false
+--Properties:
 
-_G.BIND        = 118
-_G.ESP_BIND    = 49
-_G.CHANGE_AIM  = 'q'
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-_G.AIM_AT = 'Head'
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(187, 244, 255)
+Frame.Position = UDim2.new(0, 0, 0.445328146, 0)
+Frame.Size = UDim2.new(0, 63, 0, 146)
 
-wait(1)
+toggle.Name = "toggle"
+toggle.Parent = Frame
+toggle.BackgroundColor3 = Color3.fromRGB(165, 213, 255)
+toggle.Position = UDim2.new(0, 0, 0.328767121, 0)
+toggle.Size = UDim2.new(0, 63, 0, 50)
+toggle.Font = Enum.Font.SourceSans
+toggle.Text = "off"
+toggle.TextColor3 = Color3.fromRGB(248, 43, 29)
+toggle.TextScaled = true
+toggle.TextSize = 14.000
+toggle.TextWrapped = true
 
-function GetNearestPlayerToMouse()
-local PLAYERS      = {}
-local PLAYER_HOLD  = {}
-local DISTANCES    = {}
-for i, v in pairs(game.Players:GetPlayers()) do
-if v ~= PLAYER then
-table.insert(PLAYERS, v)
-end
-end
-for i, v in pairs(PLAYERS) do
-if _G.FREE_FOR_ALL == false then
-if v and (v.Character) ~= nil and v.TeamColor ~= PLAYER.TeamColor then
-local AIM = v.Character:FindFirstChild(_G.AIM_AT)
-if AIM ~= nil then
-local DISTANCE                 = (AIM.Position - game.Workspace.CurrentCamera.CoordinateFrame.p).magnitude
-local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (MOUSE.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
-local HIT,POS                  = game.Workspace:FindPartOnRay(RAY, game.Workspace)
-local DIFF                     = math.floor((POS - AIM.Position).magnitude)
-PLAYER_HOLD[v.Name .. i]       = {}
-PLAYER_HOLD[v.Name .. i].dist  = DISTANCE
-PLAYER_HOLD[v.Name .. i].plr   = v
-PLAYER_HOLD[v.Name .. i].diff  = DIFF
-table.insert(DISTANCES, DIFF)
-end
-end
-elseif _G.FREE_FOR_ALL == true then
-local AIM = v.Character:FindFirstChild(_G.AIM_AT)
-if AIM ~= nil then
-local DISTANCE                 = (AIM.Position - game.Workspace.CurrentCamera.CoordinateFrame.p).magnitude
-local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (MOUSE.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
-local HIT,POS                  = game.Workspace:FindPartOnRay(RAY, game.Workspace)
-local DIFF                     = math.floor((POS - AIM.Position).magnitude)
-PLAYER_HOLD[v.Name .. i]       = {}
-PLAYER_HOLD[v.Name .. i].dist  = DISTANCE
-PLAYER_HOLD[v.Name .. i].plr   = v
-PLAYER_HOLD[v.Name .. i].diff  = DIFF
-table.insert(DISTANCES, DIFF)
-end
-end
-end
+TextLabel.Parent = Frame
+TextLabel.BackgroundColor3 = Color3.fromRGB(165, 201, 255)
+TextLabel.Size = UDim2.new(0, 63, 0, 33)
+TextLabel.Font = Enum.Font.SourceSans
+TextLabel.Text = "Silent Aim"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 14.000
+TextLabel.TextWrapped = true
 
-if unpack(DISTANCES) == nil then
-return false
-end
+-- Scripts:
 
-local L_DISTANCE = math.floor(math.min(unpack(DISTANCES)))
-if L_DISTANCE > 20 then
-return false
-end
+local function TKJCW_fake_script() -- toggle.LocalScript 
+	local script = Instance.new('LocalScript', toggle)
 
-for i, v in pairs(PLAYER_HOLD) do
-if v.diff == L_DISTANCE then
-return v.plr
+	
+	
+	_G.silentaim = false
+	script.Parent.MouseButton1Click:Connect(function()
+		if _G.silentaim == false then
+			_G.silentaim = true
+			script.Parent.Text = "On"
+			script.Parent.TextColor3 = Color3.fromRGB(136, 255, 0)
+		else
+			_G.silentaim = false
+			script.Parent.Text = "Off"
+			script.Parent.TextColor3 = Color3.fromRGB(255, 0, 4)
+		end
+	end)
+	
+	local players = game:GetService("Players")
+	local plr = players.LocalPlayer
+	local mouse = plr:GetMouse()
+	local camera = game.Workspace.CurrentCamera
+	local teamcheck = true
+	
+	local function ClosestPlayerToMouse()
+		local target = nil
+		local dist = math.huge
+		for i,v in pairs(players:GetPlayers()) do
+			if v.Name ~= plr.Name then
+				if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") and _G.silentaim and teamcheck and v.TeamColor ~= plr.TeamColor then
+					local screenpoint = camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+					local check = (Vector2.new(mouse.X,mouse.Y)-Vector2.new(screenpoint.X,screenpoint.Y)).magnitude
+	
+					if check < dist then
+						target  = v
+						dist = check
+					end
+				end
+			end
+		end
+	
+		return target 
+	end
+	
+	local mt = getrawmetatable(game)
+	local namecall = mt.__namecall
+	setreadonly(mt,false)
+	
+	mt.__namecall = function(self,...)
+		local args = {...}
+		local method = getnamecallmethod()
+	
+		if tostring(self) == "HitPart" and method == "FireServer" then
+			print("so?")
+			args[1] = ClosestPlayerToMouse().Character.Head
+			args[2] = ClosestPlayerToMouse().Character.Head.Position
+			return self.FireServer(self, unpack(args))
+		end
+		return namecall(self,...)
+	end
+		
+	
+	
 end
-end
-return false
-end
-
-GUI_MAIN                           = Instance.new('ScreenGui', game.CoreGui)
-GUI_TARGET                         = Instance.new('TextLabel', GUI_MAIN)
-GUI_AIM_AT                         = Instance.new('TextLabel', GUI_MAIN)
-
-GUI_MAIN.Name                      = 'AIMBOT'
-
-GUI_TARGET.Size                    = UDim2.new(0,200,0,30)
-GUI_TARGET.BackgroundTransparency  = 0.5
-GUI_TARGET.BackgroundColor         = BrickColor.new('Fossil')
-GUI_TARGET.BorderSizePixel         = 0
-GUI_TARGET.Position                = UDim2.new(0.5,-100,0,0)
-GUI_TARGET.Text                    = 'AIMBOT : OFF'
-GUI_TARGET.TextColor3              = Color3.new(1,1,1)
-GUI_TARGET.TextStrokeTransparency  = 1
-GUI_TARGET.TextWrapped             = true
-GUI_TARGET.FontSize                = 'Size24'
-GUI_TARGET.Font                    = 'SourceSansBold'
-
-GUI_AIM_AT.Size                    = UDim2.new(0,200,0,20)
-GUI_AIM_AT.BackgroundTransparency  = 0.5
-GUI_AIM_AT.BackgroundColor         = BrickColor.new('Fossil')
-GUI_AIM_AT.BorderSizePixel         = 0
-GUI_AIM_AT.Position                = UDim2.new(0.5,-100,0,30)
-GUI_AIM_AT.Text                    = 'AIMING : HEAD'
-GUI_AIM_AT.TextColor3              = Color3.new(1,1,1)
-GUI_AIM_AT.TextStrokeTransparency  = 1
-GUI_AIM_AT.TextWrapped             = true
-GUI_AIM_AT.FontSize                = 'Size18'
-GUI_AIM_AT.Font                    = 'SourceSansBold'
-
-local TRACK = false
-
-function CREATE(BASE, TEAM)
-local ESP_MAIN                   = Instance.new('BillboardGui', PLAYER.PlayerGui)
-local ESP_DOT                    = Instance.new('Frame', ESP_MAIN)
-local ESP_NAME                   = Instance.new('TextLabel', ESP_MAIN)
-
-ESP_MAIN.Name                    = 'ESP'
-ESP_MAIN.Adornee                 = BASE
-ESP_MAIN.AlwaysOnTop             = true
-ESP_MAIN.ExtentsOffset           = Vector3.new(0, 1, 0)
-ESP_MAIN.Size                    = UDim2.new(0, 5, 0, 5)
-
-ESP_DOT.Name                     = 'DOT'
-ESP_DOT.BackgroundColor          = BrickColor.new('Bright red')
-ESP_DOT.BackgroundTransparency   = 0.3
-ESP_DOT.BorderSizePixel          = 0
-ESP_DOT.Position                 = UDim2.new(-0.5, 0, -0.5, 0)
-ESP_DOT.Size                     = UDim2.new(2, 0, 2, 0)
-ESP_DOT.Visible                  = true
-ESP_DOT.ZIndex                   = 10
-
-ESP_NAME.Name                    = 'NAME'
-ESP_NAME.BackgroundColor3        = Color3.new(255, 255, 255)
-ESP_NAME.BackgroundTransparency  = 1
-ESP_NAME.BorderSizePixel         = 0
-ESP_NAME.Position                = UDim2.new(0, 0, 0, -40)
-ESP_NAME.Size                    = UDim2.new(1, 0, 10, 0)
-ESP_NAME.Visible                 = true
-ESP_NAME.ZIndex                  = 10
-ESP_NAME.Font                    = 'ArialBold'
-ESP_NAME.FontSize                = 'Size14'
-ESP_NAME.Text                    = BASE.Parent.Name:upper()
-ESP_NAME.TextColor               = BrickColor.new('Bright red')
-end
-
-function CLEAR()
-for _,v in pairs(PLAYER.PlayerGui:children()) do
-if v.Name == 'ESP' and v:IsA('BillboardGui') then
-v:Destroy()
-end
-end
-end
-
-function FIND()
-CLEAR()
-TRACK = true
-spawn(function()
-while wait() do
-if TRACK then
-CLEAR()
-for i,v in pairs(game.Players:GetChildren()) do
-if v.Character and v.Character:FindFirstChild('Head') then
-if _G.FREE_FOR_ALL == false then
-if v.TeamColor ~= PLAYER.TeamColor then
-if v.Character:FindFirstChild('Head') then
-CREATE(v.Character.Head, true)
-end
-end
-else
-if v.Character:FindFirstChild('Head') then
-CREATE(v.Character.Head, true)
-end
-end
-end
-end
-end
-end
-wait(1)
-end)
-end
-
-MOUSE.KeyDown:connect(function(KEY)
-KEY = KEY:lower():byte()
-if KEY == _G.BIND then
-ENABLED = true
-end
-end)
-
-MOUSE.KeyUp:connect(function(KEY)
-KEY = KEY:lower():byte()
-if KEY == _G.BIND then
-ENABLED = false
-end
-end)
-
-MOUSE.KeyDown:connect(function(KEY)
-KEY = KEY:lower():byte()
-if KEY == _G.ESP_BIND then
-if ESP_ENABLED == false then
-FIND()
-ESP_ENABLED = true
-print('ESP : ON')
-elseif ESP_ENABLED == true then
-wait()
-CLEAR()
-TRACK = false
-ESP_ENABLED = true
-print('ESP : OFF')
-end
-end
-end)
-
-MOUSE.KeyDown:connect(function(KEY)
-if KEY == _G.CHANGE_AIM then
-if _G.AIM_AT == 'Head' then
-_G.AIM_AT = 'Torso'
-GUI_AIM_AT.Text = 'AIMING : TORSO'
-elseif _G.AIM_AT == 'Torso' then
-_G.AIM_AT = 'Head'
-GUI_AIM_AT.Text = 'AIMING : HEAD'
-end
-end
-end)
-
-game:GetService('RunService').RenderStepped:connect(function()
-if ENABLED then
-local TARGET = GetNearestPlayerToMouse()
-if (TARGET ~= false) then
-local AIM = TARGET.Character:FindFirstChild(_G.AIM_AT)
-if AIM then
-CC.CoordinateFrame = CFrame.new(CC.CoordinateFrame.p, AIM.CFrame.p)
-end
-GUI_TARGET.Text = 'AIMBOT : '.. TARGET.Name:sub(1, 5)
-else
-GUI_TARGET.Text = 'AIMBOT : OFF'
-end
-end
-end)
-
-repeat
-wait()
-if ESP_ENABLED == true then
-FIND()
-end
-until ESP_ENABLED == false
-wait()
-_G.FREE_FOR_ALL = false
-_G.BIND = 118 -- LEFT ALT
-_G.ESP_BIND = 49 -- RIGHT CTRL
+coroutine.wrap(TKJCW_fake_script)()
