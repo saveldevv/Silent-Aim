@@ -1,14 +1,10 @@
--- Gui to Lua
--- Version: 3.2
-
--- Instances:
+--Made By SAVELDEVV#2697
 
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local toggle = Instance.new("TextButton")
 local TextLabel = Instance.new("TextLabel")
 
---Properties:
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -40,7 +36,7 @@ TextLabel.TextScaled = true
 TextLabel.TextSize = 14.000
 TextLabel.TextWrapped = true
 
--- Scripts:
+
 
 local function TKJCW_fake_script() -- toggle.LocalScript 
 	local script = Instance.new('LocalScript', toggle)
